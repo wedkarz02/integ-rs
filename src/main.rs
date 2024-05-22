@@ -1,15 +1,29 @@
+use std::f64::consts::{E, PI};
+
 pub mod integrate;
 
-fn display(text: &str) {
-    println!("{}", text);
-}
-
-fn f(x: &f32) -> f32 {
-    x.powf(2f32) + 1f32
+fn f(x: &f64) -> f64 {
+    x.powf(2f64)
 }
 
 fn main() {
-    integrate::run_fn("hello", display);
-    let res = integrate::add_vals(1f32, 2f32, f);
-    integrate::run_fn(&res.to_string(), display);
+    let iterations = 100;
+
+    let res = integrate::rectangle_rule(f, -1.0, 1.0, iterations);
+    println!("{}", res);
+
+    let res = integrate::rectangle_rule(|x| x.powf(2f64), -1.0, 1.0, iterations);
+    println!("{}", res);
+
+    let res = integrate::rectangle_rule(|x| x.sin(), 0.0, PI, iterations);
+    println!("{}", res);
+
+    let res = integrate::rectangle_rule(|x| E.powf(*x), 0.0, 1.0, iterations);
+    println!("{}", res);
+
+    let res = integrate::rectangle_rule(|x| 1.0 / x, 1.0, 2.0, iterations);
+    println!("{}", res);
+
+    let res = integrate::rectangle_rule(|x| x.cos(), 0.0, PI / 2.0, iterations);
+    println!("{}", res);
 }
