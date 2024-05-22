@@ -1,6 +1,6 @@
 /// # Panics
 /// This function will panic if a is greater than b or if n is 0.
-pub fn rectangle_rule(f: impl Fn(&f64) -> f64, a: f64, b: f64, n: u32) -> f64 {
+pub fn rectangle_rule(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
     assert!(a <= b);
     assert!(n > 0);
 

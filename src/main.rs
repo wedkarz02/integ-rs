@@ -9,21 +9,21 @@ fn f(x: &f64) -> f64 {
 fn main() {
     let iterations = 100;
 
-    let res = integrate::rectangle_rule(f, -1.0, 1.0, iterations);
+    let res = integrate::rectangle_rule(-1.0, 1.0, iterations, f);
     println!("{}", res);
 
-    let res = integrate::rectangle_rule(|x| x.powf(2f64), -1.0, 1.0, iterations);
+    let res = integrate::rectangle_rule(-1.0, 1.0, iterations, |x| x.powf(2f64));
     println!("{}", res);
 
-    let res = integrate::rectangle_rule(|x| x.sin(), 0.0, PI, iterations);
+    let res = integrate::rectangle_rule(0.0, PI, iterations, |x| x.sin());
     println!("{}", res);
 
-    let res = integrate::rectangle_rule(|x| E.powf(*x), 0.0, 1.0, iterations);
+    let res = integrate::rectangle_rule(0.0, 1.0, iterations, |x| E.powf(*x));
     println!("{}", res);
 
-    let res = integrate::rectangle_rule(|x| 1.0 / x, 1.0, 2.0, iterations);
+    let res = integrate::rectangle_rule(1.0, 2.0, iterations, |x| 1.0 / x);
     println!("{}", res);
 
-    let res = integrate::rectangle_rule(|x| x.cos(), 0.0, PI / 2.0, iterations);
+    let res = integrate::rectangle_rule(0.0, PI / 2.0, iterations, |x| x.cos());
     println!("{}", res);
 }
