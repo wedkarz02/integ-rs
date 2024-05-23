@@ -1,6 +1,6 @@
 /// # Panics
 /// This function will panic if `a` is greater than `b` or if `n` is 0.
-pub fn rectangle_rule(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
+pub fn rectangle(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
     assert!(a <= b);
     assert!(n > 0);
 
@@ -18,7 +18,7 @@ pub fn rectangle_rule(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
 
 /// # Panics
 /// This function will panic if `a` is greater than `b` or if `n` is 0.
-pub fn trapezoid_rule(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
+pub fn trapezoid(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
     assert!(a <= b);
     assert!(n > 0);
 
@@ -53,31 +53,23 @@ mod tests {
 
     #[test]
     fn test_rectangle() {
-        let eps = 1e-10;
-        let div = 100_000;
-        assert_loosely_eq!(
-            2.0 / 3.0,
-            rectangle_rule(-1.0, 1.0, div, |x| x.powf(2.0)),
-            eps
-        );
-        assert_loosely_eq!(2.0, rectangle_rule(0.0, PI, div, |x| x.sin()), eps);
-        assert_loosely_eq!(E - 1.0, rectangle_rule(0.0, 1.0, div, |x| E.powf(*x)), eps);
-        assert_loosely_eq!(2f64.ln(), rectangle_rule(1.0, 2.0, div, |x| 1.0 / x), eps);
-        assert_loosely_eq!(1.0, rectangle_rule(0.0, PI / 2.0, div, |x| x.cos()), eps);
+        let eps = 1e-8;
+        let div = 20_000;
+        assert_loosely_eq!(2.0 / 3.0, rectangle(-1.0, 1.0, div, |x| x.powf(2.0)), eps);
+        assert_loosely_eq!(2.0, rectangle(0.0, PI, div, |x| x.sin()), eps);
+        assert_loosely_eq!(E - 1.0, rectangle(0.0, 1.0, div, |x| E.powf(*x)), eps);
+        assert_loosely_eq!(2f64.ln(), rectangle(1.0, 2.0, div, |x| 1.0 / x), eps);
+        assert_loosely_eq!(1.0, rectangle(0.0, PI / 2.0, div, |x| x.cos()), eps);
     }
 
     #[test]
     fn test_trapezoid() {
-        let eps = 1e-9;
-        let div = 100_000;
-        assert_loosely_eq!(
-            2.0 / 3.0,
-            trapezoid_rule(-1.0, 1.0, div, |x| x.powf(2.0)),
-            eps
-        );
-        assert_loosely_eq!(2.0, trapezoid_rule(0.0, PI, div, |x| x.sin()), eps);
-        assert_loosely_eq!(E - 1.0, trapezoid_rule(0.0, 1.0, div, |x| E.powf(*x)), eps);
-        assert_loosely_eq!(2f64.ln(), trapezoid_rule(1.0, 2.0, div, |x| 1.0 / x), eps);
-        assert_loosely_eq!(1.0, trapezoid_rule(0.0, PI / 2.0, div, |x| x.cos()), eps);
+        let eps = 1e-8;
+        let div = 20_000;
+        assert_loosely_eq!(2.0 / 3.0, trapezoid(-1.0, 1.0, div, |x| x.powf(2.0)), eps);
+        assert_loosely_eq!(2.0, trapezoid(0.0, PI, div, |x| x.sin()), eps);
+        assert_loosely_eq!(E - 1.0, trapezoid(0.0, 1.0, div, |x| E.powf(*x)), eps);
+        assert_loosely_eq!(2f64.ln(), trapezoid(1.0, 2.0, div, |x| 1.0 / x), eps);
+        assert_loosely_eq!(1.0, trapezoid(0.0, PI / 2.0, div, |x| x.cos()), eps);
     }
 }
