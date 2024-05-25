@@ -1,5 +1,6 @@
 use csv::{ReaderBuilder, WriterBuilder};
 use serde::Deserialize;
+use std::env;
 use std::error::Error;
 use std::f64::consts::PI;
 use std::fs::File;
@@ -76,22 +77,48 @@ fn calculate_iter_pi() -> Vec<Vec<f64>> {
 }
 
 fn main() {
-    let pi_vec = calculate_iter_pi();
-    if let Err(e) = update_pi_file("dump/pi_res.csv", &pi_vec) {
-        eprintln!("{}", e);
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        println!("Nothing to do...");
         process::exit(0);
     }
 
-    let py_output = Command::new("python3")
-        .arg("scripts/plot_pi.py")
-        .output()
-        .expect("failed to execute python process");
+    match args[1].as_str() {
+        "pi" => {
+            let pi_vec = calculate_iter_pi();
+            if let Err(e) = update_pi_file("dump/pi_res.csv", &pi_vec) {
+                eprintln!("{}", e);
+                process::exit(0);
+            }
 
-    if py_output.status.success() {
-        let result = String::from_utf8_lossy(&py_output.stdout);
-        println!("{}", result);
-    } else {
-        let result = String::from_utf8_lossy(&py_output.stderr);
-        eprintln!("{}", result);
-    }
+            let py_output = Command::new("python3")
+                .arg("scripts/plot_pi.py")
+                .output()
+                .expect("failed to execute python process");
+
+            if py_output.status.success() {
+                let result = String::from_utf8_lossy(&py_output.stdout);
+                println!("{}", result);
+            } else {
+                let result = String::from_utf8_lossy(&py_output.stderr);
+                eprintln!("{}", result);
+            }
+        }
+        "parabola" => {
+            let div = 100_000;
+            let actual = 1.0 / 3.0;
+            let area = integrate::simpson(0.0, 1.0, div, |x| x.powf(2.0));
+            println!(
+                "Calculated area under a parabola on an interval [0; 1] = {}",
+                area
+            );
+            println!(
+                "With {} divisions, actual value: {}, difference: {:e}",
+                div,
+                actual,
+                (actual - area).abs()
+            );
+        }
+        _ => eprintln!("Unrecognised optional argument"),
+    };
 }
