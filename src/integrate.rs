@@ -43,8 +43,8 @@ pub fn simpson(a: f64, b: f64, n: u32, f: impl Fn(&f64) -> f64) -> f64 {
 
     let height = (b - a) / n as f64;
 
-    let x: Vec<f64> = (0..=n).into_iter().map(|i| a + i as f64 * height).collect();
-    let y: Vec<f64> = x.iter().map(|xi| f(xi)).collect();
+    let x: Vec<f64> = (0..=n).map(|i| a + i as f64 * height).collect();
+    let y: Vec<f64> = x.iter().map(f).collect();
     let sum: f64 = y[0]
         + y[y.len() - 1]
         + 4.0 * (1..n).step_by(2).map(|i| y[i as usize]).sum::<f64>()
