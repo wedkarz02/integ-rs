@@ -14,7 +14,7 @@ struct Record {
     verr: f64,
 }
 
-fn update_pi_file(path: &str, data: &Vec<Vec<f64>>) -> Result<(), Box<dyn Error>> {
+fn update_pi_file(path: &str, data: &[Vec<f64>]) -> Result<(), Box<dyn Error>> {
     let file = File::open(path)?;
     let mut reader = ReaderBuilder::new().delimiter(b';').from_reader(file);
 
@@ -40,7 +40,7 @@ fn update_pi_file(path: &str, data: &Vec<Vec<f64>>) -> Result<(), Box<dyn Error>
     let out_file = File::create(path)?;
     let mut writer = WriterBuilder::new().delimiter(b';').from_writer(out_file);
 
-    writer.write_record(&["n", "pi", "verr", "int", "ierr"])?;
+    writer.write_record(["n", "pi", "verr", "int", "ierr"])?;
 
     for (i, record) in records.into_iter().enumerate() {
         let mut record_vec = vec![
