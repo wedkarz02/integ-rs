@@ -2,10 +2,11 @@ use csv::{ReaderBuilder, WriterBuilder};
 use serde::Deserialize;
 use std::env;
 use std::error::Error;
-use std::f64::consts::PI;
+use std::f64::consts::{E, PI};
 use std::fs::File;
 use std::process::{self, Command};
 
+pub mod compare;
 pub mod integrate;
 
 #[derive(Debug, Deserialize)]
@@ -81,7 +82,7 @@ fn calculate_iter_pi() -> Vec<Vec<f64>> {
     out
 }
 
-fn display_ellipse(a: f64, b: f64, div: u32, actual: f64) {
+fn display_ellipse_area(a: f64, b: f64, div: u32, actual: f64) {
     let area = ellipse_area(a, b, div);
     println!("Ellipse area: {}", area);
     println!(
@@ -109,7 +110,8 @@ fn main() {
             }
 
             let py_output = Command::new("python3")
-                .arg("scripts/plot_pi.py")
+                .arg("scripts/plotter.py")
+                .arg("pi")
                 .output()
                 .expect("failed to execute python process");
 
@@ -138,10 +140,48 @@ fn main() {
         }
         "ellipse" => {
             let div = 100_000;
-            display_ellipse(1.0, 1.0, div, PI);
-            display_ellipse(3.0, 2.0, div, 6.0 * PI);
-            display_ellipse(7.0, 3.0, div, 21.0 * PI);
-            display_ellipse(4.0, 1.0, div, 4.0 * PI);
+            display_ellipse_area(1.0, 1.0, div, PI);
+            display_ellipse_area(3.0, 2.0, div, 6.0 * PI);
+            display_ellipse_area(7.0, 3.0, div, 21.0 * PI);
+            display_ellipse_area(4.0, 1.0, div, 4.0 * PI);
+        }
+        "sin" => {
+            let div = 100_000;
+            let area = integrate::simpson(0.0, 1.0, div, |x| x.sin());
+            let actual = 1.0 - 1f64.cos();
+            println!(
+                "Calculated area under a sine on an interval [0; 1] = {}",
+                area
+            );
+            println!(
+                "With {} divisions, actual value: {}, difference: {:e}",
+                div,
+                actual,
+                (actual - area).abs()
+            );
+        }
+        "compare" => {
+            compare::inc_dump("dump/x2.csv", -1.0, 1.0, 2.0 / 3.0, |x| x.powi(2)).unwrap();
+            compare::inc_dump("dump/sin.csv", 0.0, PI, 2.0, |x| x.sin()).unwrap();
+            compare::inc_dump("dump/ex.csv", 0.0, 1.0, E - 1.0, |x| E.powf(*x)).unwrap();
+            compare::inc_dump("dump/1x.csv", 1.0, 2.0, 2f64.ln(), |x| 1.0 / x).unwrap();
+            compare::inc_dump("dump/cos.csv", 0.0, PI / 2.0, 1.0, |x| x.cos()).unwrap();
+            compare::inc_dump("dump/x.csv", 0.0, 1.0, 1.0 / 2.0, |x| *x).unwrap();
+            compare::inc_dump("dump/1.csv", 0.0, 1.0, 1.0, |_| 1.0).unwrap();
+
+            let py_output = Command::new("python3")
+                .arg("scripts/plotter.py")
+                .arg("all")
+                .output()
+                .expect("failed to execute python process");
+
+            if py_output.status.success() {
+                let result = String::from_utf8_lossy(&py_output.stdout);
+                println!("{}", result);
+            } else {
+                let result = String::from_utf8_lossy(&py_output.stderr);
+                eprintln!("{}", result);
+            }
         }
         _ => eprintln!("Unrecognised optional argument"),
     };
