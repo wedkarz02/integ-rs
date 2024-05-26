@@ -60,7 +60,12 @@ fn update_pi_file(path: &str, data: &[Vec<f64>]) -> Result<(), Box<dyn Error>> {
 
 #[inline]
 fn circle_area(radius: f64, div: u32) -> f64 {
-    2.0 * integrate::simpson(-radius, radius, div, |x| (1.0 - x.powf(2.0)).sqrt())
+    2.0 * integrate::simpson(-radius, radius, div, |x| (1.0 - x.powi(2)).sqrt())
+}
+
+#[inline]
+fn ellipse_area(a: f64, b: f64, div: u32) -> f64 {
+    2.0 * integrate::simpson(-a, a, div, |x| b * (1.0 - x.powi(2) / a.powi(2)).sqrt())
 }
 
 fn calculate_iter_pi() -> Vec<Vec<f64>> {
@@ -74,6 +79,18 @@ fn calculate_iter_pi() -> Vec<Vec<f64>> {
     }
 
     out
+}
+
+fn display_ellipse(a: f64, b: f64, div: u32, actual: f64) {
+    let area = ellipse_area(a, b, div);
+    println!("Ellipse area: {}", area);
+    println!(
+        "a: {}, b: {}, div: {}\ndiff: {:e}\n",
+        a,
+        b,
+        div,
+        (actual - area).abs()
+    );
 }
 
 fn main() {
@@ -118,6 +135,13 @@ fn main() {
                 actual,
                 (actual - area).abs()
             );
+        }
+        "ellipse" => {
+            let div = 100_000;
+            display_ellipse(1.0, 1.0, div, PI);
+            display_ellipse(3.0, 2.0, div, 6.0 * PI);
+            display_ellipse(7.0, 3.0, div, 21.0 * PI);
+            display_ellipse(4.0, 1.0, div, 4.0 * PI);
         }
         _ => eprintln!("Unrecognised optional argument"),
     };
