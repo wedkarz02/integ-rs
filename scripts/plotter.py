@@ -1,17 +1,16 @@
 import csv
 import matplotlib.pyplot as plt
 import sys
-import numpy as np
 
 
 def plot(n, data, colors, labels, xl, yl, title, out_path):
     plt.figure()
-    plt.yscale("log")
-    plt.xscale("log")
     for i in range(len(data)):
         plt.plot(n, data[i], color=colors[i],
                  linestyle="-", marker="", label=labels[i])
 
+    plt.yscale("log")
+    plt.xscale("log")
     plt.xlabel(xl)
     plt.ylabel(yl)
     plt.title(title, loc="center", wrap=True)
@@ -57,13 +56,19 @@ if __name__ == "__main__":
                 ierr.append(float(row[4]))
 
         data = [verr, ierr]
-        plot(n, data, ["red", "green"], ["Vector Error", "Integral Error"], "Liczba podziałów",
+        plot(n, data, ["red", "green"], ["Vector Error", "Integral Error (Simpson)"], "Liczba podziałów",
              "Wartość błędu", "Porównanie dokładności w wyliczaniu wartości liczby PI", "img/pi_err.png")
     elif option == "all":
-        files = ["1x", "cos", "ex", "sin", "x2"]
-        for name in files:
+        files = {
+            "1x": "1 / x",
+            "cos": "cos(x)",
+            "ex": "e^x",
+            "sin": "sin(x)",
+            "x2": "x^2",
+        }
+        for name, fn in files.items():
             n, data = load_data_cmp(f"dump/{name}.csv")
             plot(n, data, ["red", "green", "blue"], ["Rectangle Error", "Trapezoid Error", "Simpson's Error"], "Liczba podziałów",
-                 "Wartość błędu", "Porównanie dokładności metod całkowania", f"img/{name}_err.png")
+                 "Wartość błędu", f"Porównanie dokładności metod całkowania (f(x) = {fn})", f"img/{name}_err.png")
     else:
         print("Unknown argument", file=sys.stderr)

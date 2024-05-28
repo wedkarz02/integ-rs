@@ -94,6 +94,46 @@ fn display_ellipse_area(a: f64, b: f64, div: u32, actual: f64) {
     );
 }
 
+fn run_parabola() {
+    let div = 100_000;
+    let actual = 1.0 / 3.0;
+    let area = integrate::simpson(0.0, 1.0, div, |x| x.powf(2.0));
+    println!(
+        "Calculated area under a parabola on an interval [0; 1] = {}",
+        area
+    );
+    println!(
+        "With {} divisions, actual value: {}, difference: {:e}",
+        div,
+        actual,
+        (actual - area).abs()
+    );
+}
+
+fn run_ellipse() {
+    let div = 100_000;
+    display_ellipse_area(1.0, 1.0, div, PI);
+    display_ellipse_area(3.0, 2.0, div, 6.0 * PI);
+    display_ellipse_area(7.0, 3.0, div, 21.0 * PI);
+    display_ellipse_area(4.0, 1.0, div, 4.0 * PI);
+}
+
+fn run_sin() {
+    let div = 100_000;
+    let area = integrate::simpson(0.0, 1.0, div, |x| x.sin());
+    let actual = 1.0 - 1f64.cos();
+    println!(
+        "Calculated area under a sine on an interval [0; 1] = {}",
+        area
+    );
+    println!(
+        "With {} divisions, actual value: {}, difference: {:e}",
+        div,
+        actual,
+        (actual - area).abs()
+    );
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
@@ -123,42 +163,13 @@ fn main() {
                 eprintln!("{}", result);
             }
         }
-        "parabola" => {
-            let div = 100_000;
-            let actual = 1.0 / 3.0;
-            let area = integrate::simpson(0.0, 1.0, div, |x| x.powf(2.0));
-            println!(
-                "Calculated area under a parabola on an interval [0; 1] = {}",
-                area
-            );
-            println!(
-                "With {} divisions, actual value: {}, difference: {:e}",
-                div,
-                actual,
-                (actual - area).abs()
-            );
-        }
-        "ellipse" => {
-            let div = 100_000;
-            display_ellipse_area(1.0, 1.0, div, PI);
-            display_ellipse_area(3.0, 2.0, div, 6.0 * PI);
-            display_ellipse_area(7.0, 3.0, div, 21.0 * PI);
-            display_ellipse_area(4.0, 1.0, div, 4.0 * PI);
-        }
-        "sin" => {
-            let div = 100_000;
-            let area = integrate::simpson(0.0, 1.0, div, |x| x.sin());
-            let actual = 1.0 - 1f64.cos();
-            println!(
-                "Calculated area under a sine on an interval [0; 1] = {}",
-                area
-            );
-            println!(
-                "With {} divisions, actual value: {}, difference: {:e}",
-                div,
-                actual,
-                (actual - area).abs()
-            );
+        "areas" => {
+            println!("\nPARABOLA:");
+            run_parabola();
+            println!("\n\nELLIPSE:");
+            run_ellipse();
+            println!("\nSINE:");
+            run_sin();
         }
         "compare" => {
             compare::inc_dump("dump/x2.csv", -1.0, 1.0, 2.0 / 3.0, |x| x.powi(2)).unwrap();
@@ -166,8 +177,6 @@ fn main() {
             compare::inc_dump("dump/ex.csv", 0.0, 1.0, E - 1.0, |x| E.powf(*x)).unwrap();
             compare::inc_dump("dump/1x.csv", 1.0, 2.0, 2f64.ln(), |x| 1.0 / x).unwrap();
             compare::inc_dump("dump/cos.csv", 0.0, PI / 2.0, 1.0, |x| x.cos()).unwrap();
-            compare::inc_dump("dump/x.csv", 0.0, 1.0, 1.0 / 2.0, |x| *x).unwrap();
-            compare::inc_dump("dump/1.csv", 0.0, 1.0, 1.0, |_| 1.0).unwrap();
 
             let py_output = Command::new("python3")
                 .arg("scripts/plotter.py")
