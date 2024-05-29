@@ -69,6 +69,20 @@ fn ellipse_area(a: f64, b: f64, div: u32) -> f64 {
     2.0 * integrate::simpson(-a, a, div, |x| b * (1.0 - x.powi(2) / a.powi(2)).sqrt())
 }
 
+#[inline]
+fn arc_length(a: f64, b: f64, div: u32, eps: f64, derivative: impl Fn(&f64) -> f64) -> f64 {
+    integrate::rectangle(a + eps, b - eps, div, |x| {
+        (1.0 + derivative(x).powi(2)).sqrt()
+    })
+}
+
+#[inline]
+fn ellipse_arc(a: f64, b: f64, div: u32, eps: f64) -> f64 {
+    2.0 * arc_length(-a, a, div, eps, |x| {
+        (-b * x) / (a.powi(2) * (1.0 - x.powi(2) / a.powi(2)).sqrt())
+    })
+}
+
 fn calculate_iter_pi() -> Vec<Vec<f64>> {
     let mut out = vec![];
 
@@ -134,6 +148,58 @@ fn run_sin() {
     );
 }
 
+fn run_arc_pi() {
+    let div = 1_000_000;
+    let eps = 1e-16;
+    let circ = ellipse_arc(1.0, 1.0, div, eps);
+    println!("Circumference of a circle with a radius of 1 = {}", circ);
+    println!(
+        "With {} divisions, actual value: {}, difference: {:e}",
+        div,
+        PI * 2.0,
+        (PI * 2.0 - circ).abs()
+    );
+    println!(
+        "Approximated pi: {}, difference: {:e}",
+        circ / 2.0,
+        (PI - circ / 2.0).abs()
+    );
+}
+
+fn display_ellipse_perimeter(a: f64, b: f64, div: u32, eps: f64, actual: f64) {
+    let arc = ellipse_arc(a, b, div, eps);
+    println!("Ellipse perimeter: {}", arc);
+    println!(
+        "a: {}, b: {}, div: {}\ndiff: {:e}\n",
+        a,
+        b,
+        div,
+        (actual - arc).abs()
+    );
+}
+
+fn run_arc_ellipse() {
+    let div = 1_000_000;
+    let eps = 1e-10;
+    display_ellipse_perimeter(3.0, 2.0, div, eps, 15.8654);
+    display_ellipse_perimeter(7.0, 3.0, div, eps, 32.6857);
+    display_ellipse_perimeter(4.0, 1.0, div, eps, 17.1568);
+}
+
+fn run_sin_arc() {
+    let div = 1_000_000;
+    let eps = 1e-16;
+    let arc = arc_length(0.0, 2.0 * PI, div, eps, |x| x.cos());
+    let actual = 7.640395578055424;
+    println!("Length of the sine curve on an interval [0; 2pi] = {}", arc);
+    println!(
+        "with {} divisions, actual value: {}, difference: {:e}",
+        div,
+        actual,
+        (actual - arc).abs()
+    );
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
@@ -172,15 +238,12 @@ fn main() {
             run_sin();
         }
         "arcs" => {
-            let div = 1_000_000;
-            let eps = 1e-12;
-
-            let pi = integrate::rectangle(-1.0 + eps, 1.0 - eps, div, |x| {
-                (1.0 + x.powi(2) / (1.0 - x.powi(2))).sqrt()
-            });
-
-            println!("pi: {}", pi);
-            println!("diff: {:e}", (PI - pi).abs());
+            println!("\nCIRCUMFERENCE & PI:");
+            run_arc_pi();
+            println!("\n\nELLIPSE PERIMETER:");
+            run_arc_ellipse();
+            println!("\nSINE:");
+            run_sin_arc();
         }
         "compare" => {
             compare::inc_dump("dump/x2.csv", -1.0, 1.0, 2.0 / 3.0, |x| x.powi(2)).unwrap();
