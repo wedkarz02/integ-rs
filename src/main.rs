@@ -171,6 +171,17 @@ fn main() {
             println!("\nSINE:");
             run_sin();
         }
+        "arcs" => {
+            let div = 1_000_000;
+            let eps = 1e-12;
+
+            let pi = integrate::rectangle(-1.0 + eps, 1.0 - eps, div, |x| {
+                (1.0 + x.powi(2) / (1.0 - x.powi(2))).sqrt()
+            });
+
+            println!("pi: {}", pi);
+            println!("diff: {:e}", (PI - pi).abs());
+        }
         "compare" => {
             compare::inc_dump("dump/x2.csv", -1.0, 1.0, 2.0 / 3.0, |x| x.powi(2)).unwrap();
             compare::inc_dump("dump/sin.csv", 0.0, PI, 2.0, |x| x.sin()).unwrap();
