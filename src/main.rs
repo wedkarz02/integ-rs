@@ -100,10 +100,11 @@ fn display_ellipse_area(a: f64, b: f64, div: u32, actual: f64) {
     let area = ellipse_area(a, b, div);
     println!("Ellipse area: {}", area);
     println!(
-        "a: {}, b: {}, div: {}\ndiff: {:e}\n",
+        "a: {}, b: {}, div: {}\nactual: {}, diff: {:e}\n",
         a,
         b,
         div,
+        actual,
         (actual - area).abs()
     );
 }
@@ -170,10 +171,11 @@ fn display_ellipse_perimeter(a: f64, b: f64, div: u32, eps: f64, actual: f64) {
     let arc = ellipse_arc(a, b, div, eps);
     println!("Ellipse perimeter: {}", arc);
     println!(
-        "a: {}, b: {}, div: {}\ndiff: {:e}\n",
+        "a: {}, b: {}, div: {}\nactual: {}, diff: {:e}\n",
         a,
         b,
         div,
+        actual,
         (actual - arc).abs()
     );
 }
